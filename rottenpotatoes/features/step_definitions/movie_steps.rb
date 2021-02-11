@@ -8,7 +8,7 @@ Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|
     # each returned element will be a hash whose key is the table header.
     # you should arrange to add that movie to the database here.
-  	@movie = Movie.create(movie)
+  	Movie.create(movie)
   end
 end
 
@@ -22,7 +22,7 @@ end
 Then /I should see "(.*)" before "(.*)"/ do |e1, e2|
   #  ensure that that e1 occurs before e2.
   #  page.body is the entire content of the page as a string.
-	page.body.index(e1) < page.body.index(e2)
+	page.body.index(e1).should < page.body.index(e2)
 end
 
 # Make it easier to express checking or unchecking several boxes at once
@@ -33,7 +33,7 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
-	filtered_ratings = rating_list == "all" ? Movie.all_ratings : rating_list.split(" ")
+	filtered_ratings = rating_list == "all" ? Movie.all_ratings : rating_list.split(",")
 
   	filtered_ratings.each do |rating|
     		if uncheck == "un"
@@ -49,13 +49,13 @@ When /I should see the movies rated: (.*)/ do |rating_list|
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
 
-  filtered_ratings = rating_list == "all" ? Movie.all_ratings : rating_list.split(" ")
+  filtered_ratings = rating_list == "all" ? Movie.all_ratings : rating_list.split(",")
 
   @movies.each do |movie|
     if rating_list_array.include?(movie.rating)
-      page.body.include?(movie.title) == true
+      page.body.include?(movie.title).should == true
     else
-      page.body.include?(movie.title) == false
+      page.body.include?(movie.title).should == false
     end
   end
 

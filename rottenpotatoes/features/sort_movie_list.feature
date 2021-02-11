@@ -25,6 +25,7 @@ Background: movies have been added to database
 Scenario: sort movies alphabetically
   When I follow "Movie Title"
   # your steps here
+  Then I should see "Aladdin" before "Amelie"
   Then I should see "2001: A Space Odyssey" before "Aladdin"
   Then I should see "Chocolat" before "The Incredibles"
   Then I should see "Raiders of the Lost Ark" after "Chicken Run"
