@@ -1,14 +1,10 @@
 # Add a declarative step here for populating the DB with movies.
 
-require 'uri'
-require 'cgi'
-require File.expand_path(File.join(File.dirname(__FILE__),'web_steps'))
-
 Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|
     # each returned element will be a hash whose key is the table header.
     # you should arrange to add that movie to the database here.
-  	Movie.create(movie)
+  	Movie.create!(movie)
   end
 end
 
@@ -25,34 +21,47 @@ Then /I should see "(.*)" before "(.*)"/ do |e1, e2|
 	page.body.index(e1).should < page.body.index(e2)
 end
 
+Then /I should see "(.*)" after "(.*)"/ do |e1, e2|
+  #  ensure that that e1 occurs before e2.
+  #  page.body is the entire content of the page as a string.
+        page.body.index(e1).should > page.body.index(e2)
+end
+
 # Make it easier to express checking or unchecking several boxes at once
 #  "When I uncheck the following ratings: PG, G, R"
 #  "When I check the following ratings: G"
 
-When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
+When /I (un)?check the following ratings: (.*)/ do | uncheck, rating_list |
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
-	filtered_ratings = rating_list == "all" ? Movie.all_ratings : rating_list.split(",")
-
-  	filtered_ratings.each do |rating|
-    		if uncheck == "un"
-     			steps %Q{Given I am on \"ratings_#{rating}\"}
-    		else
-      			steps %Q{Given I am on \"ratings_#{rating}\"}
-    		end
-  	end
+	if rating_list == "all"
+		rating_list = Movie.all_ratings
+	else
+		rating_list = rating_list.split(", ")
+	end
+	rating_list.each do | irating |
+		if uncheck
+			uncheck("ratings_#{irating}")
+		else
+			check("ratings_#{irating}")
+		end
+	end
 end
 
 When /I should see the movies rated: (.*)/ do |rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
-
-  filtered_ratings = rating_list == "all" ? Movie.all_ratings : rating_list.split(",")
-
+  
+  if rating_list == "all"
+     filtered_ratings = Movie.all_ratings
+  else
+     filtered_ratings = rating_list.split(", ")
+  end
+  @movies = Movie.all
   @movies.each do |movie|
-    if rating_list_array.include?(movie.rating)
+    if filtered_ratings.include?(movie.rating)
       page.body.include?(movie.title).should == true
     else
       page.body.include?(movie.title).should == false
