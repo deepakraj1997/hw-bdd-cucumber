@@ -1,5 +1,9 @@
 # Add a declarative step here for populating the DB with movies.
 
+require 'uri'
+require 'cgi'
+require File.expand_path(File.join(File.dirname(__FILE__),'web_steps'))
+
 Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|
     # each returned element will be a hash whose key is the table header.
@@ -53,6 +57,7 @@ When /I should see the movies rated: (.*)/ do |rating_list|
     else
       page.body.include?(movie.title) == false
     end
+  end
 
 end
 
